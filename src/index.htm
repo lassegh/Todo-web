@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <!-- Sidehoved -->
+    <div class="jumbotron text-center">
+        <h1>ToDo List</h1>
+    </div>
+
+    <!-- Menu bar -->
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <!--Logo-->
+        <a class="navbar-brand" href="#" style="padding-left: 50px">
+            
+        </a>
+    
+        <!-- Links -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <button id="seeAllBtn" class="btn btn-info" style="margin-left: 3px;">All</button>
+              </li>
+              <li class="nav-item">
+                <button id="seeTodosBtn" class="btn btn-info" style="margin-left: 3px;">ToDos</button>
+              </li>
+              <li class="nav-item">
+                <button id="seeDoneBtn" class="btn btn-info" style="margin-left: 3px;">Done</button>
+              </li>
+            </ul>     
+        </div>
+    </nav> 
+
+    <!-- Grid -->
+    <div class="row">
+        <div class="col-sm-6" style="padding-left: 100px; padding-top: 20px; padding-bottom: 10px;">
+            <p style="font-weight: bold">
+                    <h2>List</h2>
+            </p>
+            <div id="todoList">
+        
+            </div>
+        </div>
+        <div class="col-sm-6" style="padding-left: 50px; padding-top: 20px; padding-bottom: 10px;">
+            <p style="font-weight: bold">
+                <h2>Add New Todo</h2>
+            </p>
+            <div>
+                <textarea id="contentNewTodo"></textarea>
+                <button id="addBtn" class="btn btn-info" style="margin-left: 6px; margin-bottom: 20px;">Add</button>
+            </div>
+        </div>
+        
+    </div> 
+
+    <!-- Bottom bar -->
+    <div style="position: fixed; bottom: 0; right: 0; width: 100%; background-color: darkgray">        
+            <div class="row">
+
+            </div> 
+    </div>
+
+    <script src="bundle.js"></script>
+
+</body>
+</html>
