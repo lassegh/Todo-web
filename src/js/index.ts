@@ -9,8 +9,8 @@ interface ITodoItem {
     content: string;
 }
 
-let todoItemList: ITodoItem[];
-let todoOrderList: number[];
+let todoOrderList: number[] = [];
+let sortedListItems:ITodoItem[] = [];
 
 const baseUri: string = "http://localhost:57611/api/todo";
 const storageKey: string = "todoOrder";
@@ -40,15 +40,30 @@ addTodoBtn.addEventListener("click", postTodo);
 
     getTodos();
 
-    console.log(localStorage.getItem(storageKey));
+    todoOrderList = JSON.parse(localStorage.getItem(storageKey));
+    if (todoOrderList.length != 0) filterAll();
 })();
 
+
+function sortListAccordingToLocalStorage(todoItemList:ITodoItem[]): void{ 
+    for (let i = 0; i < todoOrderList.length; i++) {
+        const number = todoOrderList[i];
+        sortedListItems.push(todoItemList.find(x => x.id == number));
+        todoItemList.splice(todoItemList.findIndex(x => x.id == number),1);
+    }
+
+    for (let i = 0; i < todoItemList.length; i++) {
+        sortedListItems.push(todoItemList[i]);
+        todoOrderList.push(todoItemList[i].id);
+    }
+    console.log(todoOrderList);
+}
 
 
 function filterAll(): void{
     contentOfAllTodos.innerHTML = "";
 
-    todoItemList.forEach((todo: ITodoItem) => {
+    sortedListItems.forEach((todo: ITodoItem) => {
         appendTodoItem(todo);
     });
 }
@@ -56,33 +71,81 @@ function filterAll(): void{
 function filterTodos(): void{
     contentOfAllTodos.innerHTML = "";
 
-    todoItemList.forEach((todo: ITodoItem) => {
+    sortedListItems.forEach((todo: ITodoItem) => {
         if(!todo.isDone) appendTodoItem(todo);
     });
 }
 
 function filterDone(): void{
+    
     contentOfAllTodos.innerHTML = "";
 
-    todoOrderList =[];
-
-    todoItemList.forEach((todo: ITodoItem) => {
+    sortedListItems.forEach((todo: ITodoItem) => {
         if(todo.isDone){
             appendTodoItem(todo);
             todoOrderList.push(todo.id);
         } 
     });
-
-    localStorage.setItem(storageKey, JSON.stringify(todoOrderList));
 }
+
+function move(id:number, shouldMoveUp:boolean):void{
+    console.log(id);
+
+    // Find index på denne
+    let thisIndex = todoOrderList.findIndex(x => x == id);
+    console.log("denne index: "+thisIndex);
+
+    // Find index på på næste plads
+    let nextIndex: number;
+    if (shouldMoveUp){
+        nextIndex = thisIndex - 1;
+        if (nextIndex < 0) return
+    }
+    else {
+        nextIndex = thisIndex + 1;
+        if (nextIndex >= todoOrderList.length) return
+    }
+    console.log("next index: "+nextIndex);
+
+    // flyt på tal i todoOrderedList
+    [todoOrderList[thisIndex], todoOrderList[nextIndex]] = [todoOrderList[nextIndex], todoOrderList[thisIndex]]; 
+
+    // flyt på objekter i sortedListItems
+    [sortedListItems[thisIndex], sortedListItems[nextIndex]] = [sortedListItems[nextIndex], sortedListItems[thisIndex]]; 
+
+    console.log(todoOrderList);
+    filterAll();
+
+    setOrderedList();
+}
+
 
 function appendTodoItem(todo: ITodoItem): void{
     var divElement = document.createElement("div");
     contentOfAllTodos.appendChild(divElement);
+
+    var moveUpBtn = document.createElement("button");
+    moveUpBtn.setAttribute("class","btn btn-info");
+    moveUpBtn.setAttribute("style","margin-bottom: 20px;");
+    moveUpBtn.innerHTML = "Move up";
+    moveUpBtn.addEventListener("click",(()=>{
+        move(todo.id, true)
+    }));
+    divElement.appendChild(moveUpBtn);
+
+    var moveDownBtn = document.createElement("button");
+    moveDownBtn.setAttribute("class","btn btn-info");
+    moveDownBtn.setAttribute("style","margin-left: 6px; margin-bottom: 20px;");
+    moveDownBtn.innerHTML = "Move down";
+    moveDownBtn.addEventListener("click",(()=>{
+        move(todo.id, false)
+    }));
+    divElement.appendChild(moveDownBtn);
     
     var textArea = document.createElement("textarea");
     textArea.setAttribute("type","text");
     textArea.setAttribute("id","content"+todo.id);
+    textArea.setAttribute("style","margin-left: 6px;");
     textArea.innerHTML = todo.content;
     divElement.appendChild(textArea);
     
@@ -109,10 +172,15 @@ function appendTodoItem(todo: ITodoItem): void{
 }
 
 
+function setOrderedList(){
+    localStorage.setItem(storageKey, JSON.stringify(todoOrderList));
+}
+
+
 function getTodos(): void{
     axios.get<ITodoItem[]>(baseUri)
         .then(function (response: AxiosResponse<ITodoItem[]>): void {
-            todoItemList = response.data;
+            sortListAccordingToLocalStorage(response.data);
             filterAll(); 
         })
         .catch(function (error: AxiosError): void {
@@ -132,7 +200,7 @@ function updateTodo(id: number): void{
 
     axios.put<boolean>(baseUri+"/"+id, todo)
     .then(function (response: AxiosResponse<boolean>): void{
-        if(response.data == true) todoItemList[todoItemList.findIndex(x => x.id == id)] = todo;
+        if(response.data == true) sortedListItems[sortedListItems.findIndex(x => x.id == id)] = todo;
         filterAll();
     })
     .catch(function (error: AxiosError): void {
@@ -151,7 +219,7 @@ function postTodo(): void{
 
     axios.post<ITodoItem>(baseUri, todo)
     .then(function (response: AxiosResponse<ITodoItem>): void{
-        todoItemList.push(response.data);
+        sortedListItems.push(response.data);
         filterAll();
     })
     .catch(function (error:AxiosError): void{
